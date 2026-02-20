@@ -45,8 +45,17 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
                     <div className="text-[var(--accent-gold)] font-bold text-sm">{perPC.toLocaleString()} PC</div>
                 </div>
                 <div className="bg-[var(--bg-input)] p-2 rounded-lg">
-                    <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">예상 정산</div>
-                    <div className="text-[var(--accent-emerald)] font-bold text-sm">${perUSD}</div>
+                    <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">
+                        {project.rewardType === 'equity' ? '1인당 지분' : '예상 정산'}
+                    </div>
+                    <div className="text-[var(--accent-emerald)] font-bold text-sm">
+                        {project.rewardType === 'equity'
+                            ? (project.equityAmount && project.targetMemberCount
+                                ? `${((project.equityAmount / project.targetMemberCount) * 100).toFixed(4)}%`
+                                : '--%')
+                            : `$${perUSD}`
+                        }
+                    </div>
                 </div>
                 <div className="bg-[var(--bg-input)] p-2 rounded-lg">
                     <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">남은 기간</div>

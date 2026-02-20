@@ -18,6 +18,10 @@ export interface Project {
     category: ProjectCategory;
     totalPC: number;
     pcValue: number;
+    rewardType?: 'cash' | 'equity';
+    equityAmount?: number; // e.g. 0.001 (0.1%)
+    targetValuation?: number; // e.g. 10,000,000 (100억)
+
     targetMemberCount: number;
     currentMemberCount: number;
     deadline: string;

@@ -23,6 +23,9 @@ export default function MakerPage() {
         pcValue: 0,
         targetMemberCount: 0,
         deadline: '',
+        rewardType: 'cash',
+        equityAmount: 0,
+        targetValuation: 0,
         settlementCondition: 'revenue',
         settlementDetail: '',
         expectedActivity: '',
@@ -76,6 +79,9 @@ export default function MakerPage() {
             category: formData.category as ProjectCategory,
             totalPC: formData.totalPC!,
             pcValue: formData.pcValue!,
+            rewardType: formData.rewardType,
+            equityAmount: formData.equityAmount,
+            targetValuation: formData.targetValuation,
             targetMemberCount: formData.targetMemberCount!,
             currentMemberCount: 0,
             deadline: formData.deadline!,
@@ -153,7 +159,27 @@ export default function MakerPage() {
                         {step === 2 && (
                             <Card className="animate-in">
                                 <h3 className="text-xl font-bold mb-2">Pledge Credit 보상 설계</h3>
-                                <p className="text-sm text-[var(--text-secondary)] mb-6">PC는 프로젝트 수익화 시 스테이블코인(USDC/USDT)으로 전환되는 보상 청구권입니다.</p>
+                                <p className="text-sm text-[var(--text-secondary)] mb-6">PC는 프로젝트 성공 시 금전적 가치로 전환되는 보상 청구권입니다.</p>
+
+                                <div className="form-group mb-6">
+                                    <label className="form-label">보상 유형 선택</label>
+                                    <div className="flex gap-4">
+                                        <label className={`flex-1 p-4 border rounded-lg cursor-pointer transition-all ${(!formData.rewardType || formData.rewardType === 'cash') ? 'border-blue-500 bg-blue-500/5 ring-1 ring-blue-500' : 'border-[var(--border-color)] hover:bg-[var(--bg-secondary)]'}`}>
+                                            <input type="radio" name="rewardType" value="cash" className="hidden"
+                                                checked={!formData.rewardType || formData.rewardType === 'cash'}
+                                                onChange={() => updateForm('rewardType', 'cash')} />
+                                            <div className="font-bold mb-1 text-lg">💰 현금 정산 (Stablecoin)</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">수익 발생 시 현금(USDC)으로 정산</div>
+                                        </label>
+                                        <label className={`flex-1 p-4 border rounded-lg cursor-pointer transition-all ${formData.rewardType === 'equity' ? 'border-purple-500 bg-purple-500/5 ring-1 ring-purple-500' : 'border-[var(--border-color)] hover:bg-[var(--bg-secondary)]'}`}>
+                                            <input type="radio" name="rewardType" value="equity" className="hidden"
+                                                checked={formData.rewardType === 'equity'}
+                                                onChange={() => updateForm('rewardType', 'equity')} />
+                                            <div className="font-bold mb-1 text-lg text-[var(--accent-purple)]">📈 지분 보상 (Equity)</div>
+                                            <div className="text-xs text-[var(--text-secondary)]">미래 지분/스톡옵션 교환권 제공</div>
+                                        </label>
+                                    </div>
+                                </div>
 
                                 <div className="form-row">
                                     <Input label="총 발행 PC 수량 *" type="number" placeholder="예: 10000"
@@ -162,32 +188,63 @@ export default function MakerPage() {
                                         value={formData.targetMemberCount || ''} onChange={e => updateForm('targetMemberCount', parseInt(e.target.value))} />
                                 </div>
 
-                                <div className="form-row">
-                                    <Input label="1 PC 예상 가치 (USD) *" type="number" step="0.01" placeholder="예: 0.10"
-                                        value={formData.pcValue || ''} onChange={e => updateForm('pcValue', parseFloat(e.target.value))} />
-                                    <Input label="모집 마감일 *" type="date"
-                                        value={formData.deadline} onChange={e => updateForm('deadline', e.target.value)} />
-                                </div>
+                                {formData.rewardType === 'equity' ? (
+                                    <div className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/20 mb-6">
+                                        <h4 className="text-sm font-bold text-[var(--accent-purple)] mb-4">지분 설계 (Equity Design)</h4>
+                                        <div className="form-row">
+                                            <Input label="제공할 총 지분율 (0~1) *" type="number" step="0.001" placeholder="예: 0.01 (1%)"
+                                                value={formData.equityAmount || ''} onChange={e => updateForm('equityAmount', parseFloat(e.target.value))} />
+                                            <Input label="현재/목표 기업가치 (USD) *" type="number" placeholder="예: 10000000 ($10M)"
+                                                value={formData.targetValuation || ''} onChange={e => updateForm('targetValuation', parseFloat(e.target.value))} />
+                                        </div>
+                                        <div className="text-xs text-[var(--text-secondary)] mt-2">
+                                            * 총 지분율 0.01은 1%를 의미합니다. 이 지분은 발행된 총 PC 보유자들에게 비례 배분됩니다.
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="form-row">
+                                        <Input label="1 PC 예상 가치 (USD) *" type="number" step="0.01" placeholder="예: 0.10"
+                                            value={formData.pcValue || ''} onChange={e => updateForm('pcValue', parseFloat(e.target.value))} />
+                                        <Input label="모집 마감일 *" type="date"
+                                            value={formData.deadline} onChange={e => updateForm('deadline', e.target.value)} />
+                                    </div>
+                                )}
+
+                                {formData.rewardType === 'equity' && (
+                                    <div className="form-group">
+                                        <Input label="모집 마감일 *" type="date"
+                                            value={formData.deadline} onChange={e => updateForm('deadline', e.target.value)} />
+                                    </div>
+                                )}
 
                                 <div className="form-group">
-                                    <label className="form-label">스테이블코인 정산 조건 *</label>
+                                    <label className="form-label">정산 조건 (Trigger) *</label>
                                     <select value={formData.settlementCondition} onChange={e => updateForm('settlementCondition', e.target.value)}>
-                                        <option value="revenue">첫 수익 발생 시</option>
-                                        <option value="funding">투자 유치 시</option>
-                                        <option value="milestone">마일스톤 달성 시</option>
-                                        <option value="exit">Exit(인수/합병/IPO) 시</option>
+                                        {formData.rewardType === 'equity' ? (
+                                            <>
+                                                <option value="exit">Exit (인수/합병/IPO) 시</option>
+                                                <option value="funding">후속 투자 유치 (Series A+) 시</option>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <option value="revenue">첫 수익 발생 시</option>
+                                                <option value="funding">투자 유치 시</option>
+                                                <option value="milestone">마일스톤 달성 시</option>
+                                                <option value="exit">Exit(인수/합병/IPO) 시</option>
+                                            </>
+                                        )}
                                     </select>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="form-label">정산 세부 조건 (선택)</label>
-                                    <textarea placeholder="예: 월 매출 $10,000 달성 시, 시리즈 A 투자 유치 시 등"
+                                    <textarea placeholder="예: 상세 조건 입력"
                                         value={formData.settlementDetail} onChange={e => updateForm('settlementDetail', e.target.value)}></textarea>
                                 </div>
 
                                 <div className="form-group">
                                     <label className="form-label">기여 활동</label>
-                                    <textarea placeholder="예: 앱 베타 테스트, 피드백 제출, SNS 공유 등"
+                                    <textarea placeholder="예: 베타 테스트 참여, 마케팅 활동 등"
                                         value={formData.expectedActivity} onChange={e => updateForm('expectedActivity', e.target.value)}></textarea>
                                 </div>
 
@@ -247,6 +304,9 @@ export default function MakerPage() {
                             targetMembers={formData.targetMemberCount || 0}
                             pcValue={formData.pcValue || 0}
                             deadline={formData.deadline || ''}
+                            rewardType={formData.rewardType}
+                            equityAmount={formData.equityAmount}
+                            targetValuation={formData.targetValuation}
                         />
                     </div>
                 </div>

@@ -64,22 +64,27 @@ export default function CreditsPage() {
                         </div>
                     ) : (
                         <div>
-                            {myCredits.map((c, i) => (
-                                <div key={i} className="flex flex-col md:flex-row justify-between items-center p-6 border-b border-[var(--border-color)] last:border-0 hover:bg-white/5 transition-colors cursor-pointer"
-                                    onClick={() => setSelectedCredit(c)}
-                                >
-                                    <div className="mb-2 md:mb-0 text-center md:text-left">
-                                        <h4 className="font-bold text-lg mb-1">{c.projectName}</h4>
-                                        <span className="text-sm text-[var(--text-muted)] block md:inline">
-                                            {c.makerName} · {new Date(c.earnedAt).toLocaleDateString()} · 정산: {condLabels[c.settlementCondition]}
-                                        </span>
+                            {myCredits.map((c, i) => {
+                                const isEquity = c.settlementCondition === 'exit' || c.settlementCondition === 'funding';
+                                return (
+                                    <div key={i} className="flex flex-col md:flex-row justify-between items-center p-6 border-b border-[var(--border-color)] last:border-0 hover:bg-white/5 transition-colors cursor-pointer"
+                                        onClick={() => setSelectedCredit(c)}
+                                    >
+                                        <div className="mb-2 md:mb-0 text-center md:text-left">
+                                            <h4 className="font-bold text-lg mb-1">{c.projectName}</h4>
+                                            <span className="text-sm text-[var(--text-muted)] block md:inline">
+                                                {c.makerName} · {new Date(c.earnedAt).toLocaleDateString()} · 정산: {condLabels[c.settlementCondition]}
+                                            </span>
+                                        </div>
+                                        <div className="text-center md:text-right">
+                                            <div className="font-bold text-xl text-[var(--accent-gold)]">{c.pcAmount.toLocaleString()} PC</div>
+                                            <div className="text-xs text-[var(--accent-emerald)]">
+                                                {isEquity ? '지분/스톡옵션 교환권' : `≈ $${(c.pcAmount * c.pcValue).toFixed(2)}`}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="text-center md:text-right">
-                                        <div className="font-bold text-xl text-[var(--accent-gold)]">{c.pcAmount.toLocaleString()} PC</div>
-                                        <div className="text-xs text-[var(--accent-emerald)]">&#x2248; ${(c.pcAmount * c.pcValue).toFixed(2)}</div>
-                                    </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </Card>

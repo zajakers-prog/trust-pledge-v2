@@ -60,6 +60,22 @@ const INITIAL_PROJECTS: Project[] = [
         proofDescription: '학습 세션 완료 스크린샷 링크를 제출해주세요.',
         legalProtections: { signedAt: '2026-02-01T11:15:00Z', signature: '정태윤' },
         createdAt: '2026-02-01T11:15:00Z', status: 'active'
+    },
+    {
+        id: 'proj_004', name: 'NeuroLink - BCI 스타트업',
+        maker: '최현석 / NeuroLink Inc.',
+        description: '뇌-컴퓨터 인터페이스(BCI) 제어 소프트웨어. 생각만으로 기기를 제어하는 혁신적인 기술을 개발합니다. 초기 기여자에게 미래 지분을 약속합니다.',
+        category: 'tech',
+        totalPC: 50000, pcValue: 1.0,
+        rewardType: 'equity', equityAmount: 0.005, targetValuation: 20000000, // 0.5% equity at $20M val
+        targetMemberCount: 10, currentMemberCount: 4,
+        deadline: '2026-12-31',
+        settlementCondition: 'exit', settlementDetail: 'IPO 또는 M&A 시 지분 가치 실현',
+        expectedActivity: 'BCI 데이터 수집 실험 참여 (판교 오피스 방문)',
+        contributionLink: 'https://neurolink.tech/join',
+        proofDescription: '실험 참여 확인증 사진을 업로드해주세요.',
+        legalProtections: { signedAt: '2026-02-10T10:00:00Z', signature: '최현석' },
+        createdAt: '2026-02-10T10:00:00Z', status: 'active'
     }
 ];
 
