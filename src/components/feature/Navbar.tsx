@@ -42,6 +42,9 @@ export default function Navbar() {
                     <Link href="/credits">
                         <button className={isActive('/credits')}>My Credits</button>
                     </Link>
+                    <Link href="/dashboard">
+                        <button className={isActive('/dashboard')}>내 대시보드</button>
+                    </Link>
                     <Link href="/maker">
                         <button className={`btn-cta-nav ${isActive('/maker')}`}>프로젝트 등록</button>
                     </Link>

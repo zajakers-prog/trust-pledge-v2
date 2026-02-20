@@ -316,6 +316,12 @@ nav {
   border-radius: 12px;
 }
 
+.btn-sm {
+  padding: 0.35rem 0.875rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
 .btn-success {
   background: var(--accent-emerald);
   color: white;

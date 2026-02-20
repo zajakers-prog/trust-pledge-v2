@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
+import { sendNewContributionEmail } from '@/lib/email';
 
-// POST /api/projects/[id]/join - 프로젝트 참여 (PC 획득)
+// POST /api/projects/[id]/join - 프로젝트 기여 신청
 export async function POST(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -27,7 +28,7 @@ export async function POST(
 
     const perPC = Math.floor(project.total_pc / project.target_member_count);
 
-    // Credit 삽입 (unique constraint로 중복 방지)
+    // Credit 삽입 (status: pending → 창업자 승인 대기)
     const { error: insertError } = await supabase.from('credits').insert({
         project_id: project.id,
         project_name: project.name,
@@ -49,14 +50,25 @@ export async function POST(
         return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    // 참여자 수 증가
-    await supabase
-        .from('projects')
-        .update({ current_member_count: project.current_member_count + 1 })
-        .eq('id', id);
+    // 창업자에게 이메일 알림 발송
+    if (project.maker_email) {
+        try {
+            await sendNewContributionEmail({
+                toEmail: project.maker_email,
+                toName: project.maker,
+                contributorName: userName,
+                projectName: project.name,
+                projectId: project.id,
+                proof,
+            });
+        } catch (emailError) {
+            console.error('창업자 알림 이메일 발송 실패:', emailError);
+        }
+    }
 
     return NextResponse.json({
         success: true,
+        message: '기여 신청이 완료되었습니다. 창업자 승인 후 PC가 지급됩니다.',
         pcAmount: perPC,
         pcValue: parseFloat(project.pc_value),
     });

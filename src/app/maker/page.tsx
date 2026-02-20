@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useStorage } from '@/lib/store';
 import { Project, ProjectCategory } from '@/lib/types';
 import Input from '@/components/ui/Input';
@@ -11,6 +12,7 @@ import PledgeCalculator from '@/components/feature/PledgeCalculator';
 
 export default function MakerPage() {
     const router = useRouter();
+    const { data: session } = useSession();
     const { addProject } = useStorage();
 
     const [step, setStep] = useState(1);
@@ -75,6 +77,7 @@ export default function MakerPage() {
             id: 'proj_' + Date.now(),
             name: formData.name!,
             maker: formData.maker!,
+            makerEmail: session?.user?.email || '',
             description: formData.description!,
             category: formData.category as ProjectCategory,
             totalPC: formData.totalPC!,
@@ -96,6 +99,20 @@ export default function MakerPage() {
             }
         };
 
+        // API로 프로젝트 저장 (Supabase)
+        const res = await fetch('/api/projects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newProject),
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            alert(`등록 실패: ${err.error || '알 수 없는 오류'}`);
+            return;
+        }
+
+        // 로컬 스토어도 갱신 (마켓플레이스 즉시 반영)
         await addProject(newProject);
         alert(`프로젝트 "${newProject.name}" 등록이 완료되었습니다!`);
         router.push('/contributor');

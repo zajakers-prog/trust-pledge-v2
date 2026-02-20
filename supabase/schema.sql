@@ -42,6 +42,7 @@ create table if not exists credits (
     settlement_condition text not null,
     settlement_detail text not null,
     status text not null default 'pending' check (status in ('pending','approved','rejected','settled')),
+    reject_reason text,
     earned_at timestamptz not null default now()
 );
 
@@ -62,7 +63,13 @@ create policy "projects_update_member_count" on projects for update using (true)
 create policy "credits_read_own" on credits for select using (true);
 create policy "credits_insert_auth" on credits for insert with check (true);
 
--- 5. 더미 데이터 초기 삽입
+-- 5. Phase 1 마이그레이션: reject_reason 컬럼 추가 (기존 DB에 실행)
+alter table credits add column if not exists reject_reason text;
+
+-- allow maker to update credits status
+create policy "credits_update_auth" on credits for update using (true);
+
+-- 6. 더미 데이터 초기 삽입
 insert into projects (id, name, maker, description, category, total_pc, pc_value, target_member_count, current_member_count, deadline, settlement_condition, settlement_detail, expected_activity, contribution_link, proof_description, legal_signed_at, legal_signature, created_at, status)
 values
 (

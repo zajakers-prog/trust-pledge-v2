@@ -14,6 +14,7 @@ export interface Project {
     id: string;
     name: string;
     maker: string;
+    makerEmail?: string;
     description: string;
     category: ProjectCategory;
     totalPC: number;

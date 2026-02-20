@@ -2,15 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { Project } from '@/lib/types';
 
-// GET /api/projects - 전체 프로젝트 목록
-export async function GET() {
+// GET /api/projects - 전체 프로젝트 목록 (makerEmail 파라미터로 창업자 프로젝트 필터링 가능)
+export async function GET(req: NextRequest) {
     const supabase = createServerClient();
+    const makerEmail = req.nextUrl.searchParams.get('makerEmail');
 
-    const { data, error } = await supabase
+    let query = supabase
         .from('projects')
         .select('*')
-        .eq('status', 'active')
         .order('created_at', { ascending: false });
+
+    if (makerEmail) {
+        query = query.eq('maker_email', makerEmail);
+    } else {
+        query = query.eq('status', 'active');
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
         id: body.id,
         name: body.name,
         maker: body.maker,
-        maker_email: body.maker || '',
+        maker_email: body.makerEmail || '',
         description: body.description,
         category: body.category,
         total_pc: body.totalPC,
@@ -65,6 +73,7 @@ function dbToProject(row: any): Project {
         id: row.id,
         name: row.name,
         maker: row.maker,
+        makerEmail: row.maker_email || undefined,
         description: row.description,
         category: row.category,
         totalPC: row.total_pc,
