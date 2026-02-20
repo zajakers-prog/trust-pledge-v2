@@ -68,7 +68,7 @@ export default function MakerPage() {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!validateStep3()) return;
 
         const newProject: Project = {
@@ -96,7 +96,7 @@ export default function MakerPage() {
             }
         };
 
-        addProject(newProject);
+        await addProject(newProject);
         alert(`프로젝트 "${newProject.name}" 등록이 완료되었습니다!`);
         router.push('/contributor');
     };

@@ -29,28 +29,27 @@ export default function ContributorPage() {
         return true;
     });
 
-    const handleJoin = () => {
-        if (selectedProject) {
-            if (!user) {
-                alert('로그인이 필요합니다.');
-                return;
-            }
-            // Check if already joined manually to debug
-            const alreadyJoined = myCredits.some(c => c.projectId === selectedProject.id);
-            if (alreadyJoined) {
-                alert('이미 참여한 프로젝트입니다.');
-                return;
-            }
-
-            if (selectedProject.proofDescription && !proofInput.trim()) {
-                alert('기여 증빙(아이디/스크린샷 등)을 입력해주세요.');
-                return;
-            }
-
-            joinProject(selectedProject.id, proofInput);
+    const handleJoin = async () => {
+        if (!selectedProject) return;
+        if (!user) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+        if (myCredits.some(c => c.projectId === selectedProject.id)) {
+            alert('이미 참여한 프로젝트입니다.');
+            return;
+        }
+        if (selectedProject.proofDescription && !proofInput.trim()) {
+            alert('기여 증빙(아이디/스크린샷 등)을 입력해주세요.');
+            return;
+        }
+        try {
+            await joinProject(selectedProject.id, proofInput);
             alert('참여가 완료되었습니다! PC가 발급되었습니다.');
-            setSelectedProject(null); // Close modal to reflect updates in the list
+            setSelectedProject(null);
             setProofInput('');
+        } catch (e: any) {
+            alert(e.message || '참여 중 오류가 발생했습니다.');
         }
     };
 
