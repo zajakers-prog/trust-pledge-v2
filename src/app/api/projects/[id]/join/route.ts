@@ -4,8 +4,9 @@ import { createServerClient } from '@/lib/supabase';
 // POST /api/projects/[id]/join - 프로젝트 참여 (PC 획득)
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     const supabase = createServerClient();
     const { userEmail, userName, proof } = await req.json();
 
@@ -17,7 +18,7 @@ export async function POST(
     const { data: project, error: fetchError } = await supabase
         .from('projects')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single();
 
     if (fetchError || !project) {
@@ -52,7 +53,7 @@ export async function POST(
     await supabase
         .from('projects')
         .update({ current_member_count: project.current_member_count + 1 })
-        .eq('id', params.id);
+        .eq('id', id);
 
     return NextResponse.json({
         success: true,
